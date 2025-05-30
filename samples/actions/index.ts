@@ -1,14 +1,13 @@
-import type { Params, Response } from '@/types'
+import type { Params, Response } from '@shaper-sdk/next'
+const API_URL = process.env.GENERATIVE_API_URL
 
 /**
  * Server action to generate content.
  * This keeps your API endpoint secure by handling the request server-side
  */
 export async function generate(params: Params): Promise<Response> {
-  const apiUrl = process.env.GENERATIVE_API_URL
-
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

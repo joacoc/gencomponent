@@ -1,0 +1,68 @@
+import type { Params } from '@shaper-sdk/next'
+import { NextResponse } from 'next/server'
+const API_URL = process.env.GENERATIVE_API_URL
+
+/**
+ * Server action to generate content.
+ * This keeps your API endpoint secure by handling the request server-side
+ */
+export async function POST(req: Request): Promise<Response> {
+  const params: Params = await req.json()
+
+  if (!params.prompt) {
+    return NextResponse.json(
+      {
+        error: {
+          message: 'Prompt is required',
+        },
+      },
+      { status: 400 },
+    )
+  }
+
+  try {
+    if (!API_URL) {
+      return NextResponse.json(
+        {
+          error: {
+            message: 'GENERATIVE_API_URL is not defined',
+          },
+        },
+        { status: 500 },
+      )
+    }
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      return NextResponse.json(
+        {
+          error: {
+            message: errorText,
+          },
+        },
+        { status: response.status },
+      )
+    }
+
+    const data = await response.json()
+    return NextResponse.json(data, {
+      status: 200,
+    })
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: {
+          message: error instanceof Error ? error.message : String(error),
+        },
+      },
+      { status: 500 },
+    )
+  }
+}
