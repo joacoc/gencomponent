@@ -1,6 +1,6 @@
 import type { Params } from '@shaper-sdk/next'
 import { NextResponse } from 'next/server'
-const API_URL = process.env.GENERATIVE_API_URL
+const API_URL = process.env.SHAPER_ENDPOINT
 
 /**
  * Server action to generate content.
@@ -25,7 +25,7 @@ export async function POST(req: Request): Promise<Response> {
       return NextResponse.json(
         {
           error: {
-            message: 'GENERATIVE_API_URL is not defined',
+            message: 'SHAPER_ENDPOINT is not defined',
           },
         },
         { status: 500 },

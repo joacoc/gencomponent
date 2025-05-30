@@ -1,5 +1,5 @@
 import type { Params, Response } from '@shaper-sdk/next'
-const API_URL = process.env.GENERATIVE_API_URL
+const API_URL = process.env.SHAPER_ENDPOINT
 
 /**
  * Server action to generate content.
