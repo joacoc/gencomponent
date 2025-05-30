@@ -23,6 +23,7 @@ Before using the library, ensure you have:
 2. An API endpoint set up to handle generation requests (default: `/api/endpoint`), or just use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/index.ts)
 3. Required environment variables:
    ```env
+   SHAPER_ENDPOINT=shaper_endpoint
    SHAPER_API_KEY=your_api_key_here
    ```
 
