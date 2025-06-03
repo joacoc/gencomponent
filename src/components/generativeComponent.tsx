@@ -1,17 +1,17 @@
+'use client'
 import IframeResizer from '@iframe-resizer/react'
 import fastDeepEqual from 'fast-deep-equal'
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react'
 import useGenerativeComponent from '../hooks/useGenerativeComponent'
 import { cn } from '../lib/utils'
-import type { Params, ServerAction } from '../types'
+import type { Params } from '../types'
 import ExclamationTriangle from './exclamationTriangle'
 
 export interface Props extends Params {
   initialState?: any
   className?: string
-  onData?: (data: { id: string; url: string }) => void
+  onData?: (data: { id?: string; url?: string; status?: string }) => void
   onError?: (error: { message: string; status?: number }) => void
-  serverAction?: ServerAction
 }
 
 const ORIGIN = 'https://pub-d6adf32ab3b94607ba3b3402d7fd4d20.r2.dev'
@@ -25,7 +25,6 @@ const GenerativeComponent = memo(
     base,
     extend,
     steps,
-    serverAction,
     onData,
     onError,
   }: Props) => {
@@ -33,7 +32,6 @@ const GenerativeComponent = memo(
     const [status, setStatus] = useState('LOADING')
     const id = useId()
     const { data, loading, error } = useGenerativeComponent({
-      serverAction,
       prompt,
       base,
       extend,
@@ -144,7 +142,7 @@ const GenerativeComponent = memo(
       return (
         <div
           className={cn(
-            'mx-auto flex h-full w-full max-w-sm animate-pulse rounded-md border border-gray-200 bg-gray-200/50',
+            'mx-auto flex h-full max-h-full w-full max-w-sm animate-pulse rounded-md border border-gray-200 bg-gray-200/50',
             className,
           )}
         />
@@ -155,7 +153,7 @@ const GenerativeComponent = memo(
       return (
         <div
           className={cn(
-            'mx-auto flex h-full w-full max-w-sm rounded-md border border-gray-200 bg-gray-100/50',
+            'mx-auto flex h-full max-h-full w-full max-w-sm rounded-md border border-gray-200 bg-gray-100/50',
             className,
           )}
         >
@@ -173,7 +171,7 @@ const GenerativeComponent = memo(
         inPageLinks
         onMessage={onMessageHandler}
         src={data?.url}
-        className={cn(className, 'h-full w-full')}
+        className={cn('h-full max-h-full min-h-8 w-full min-w-8', className)}
         checkOrigin={[ORIGIN]}
         id={id}
         key={id + '_' + 'iframe'}
@@ -191,7 +189,6 @@ const GenerativeComponent = memo(
       prevProps.extend === nextProps.extend &&
       fastDeepEqual(prevProps.variants, nextProps.variants) &&
       fastDeepEqual(prevProps.steps, nextProps.steps) &&
-      prevProps.serverAction === nextProps.serverAction &&
       fastDeepEqual(prevProps.initialState, nextProps.initialState)
     )
   },

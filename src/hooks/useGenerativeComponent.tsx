@@ -2,25 +2,24 @@
 import { useGenerativeContext } from '@/provider'
 import { useEffect, useRef, useState } from 'react'
 import { zodToJsonSchema } from 'zod-to-json-schema'
-import { isErrorResponse, Params, type ServerAction } from '../types'
+import { Params } from '../types'
 
 interface Props extends Params {
   id?: string
   endpoint?: string
-  serverAction?: ServerAction
 }
 
 export default function useGenerativeComponent(props: Props) {
   const { prompt, base, variants, steps, id } = props
   const context = useGenerativeContext()
   const endpoint = props.endpoint || context?.endpoint
-  const serverAction = props.serverAction || context?.serverAction
 
   const [{ loading, data, error }, setState] = useState<{
     loading: boolean
     data: {
-      id: string
-      url: string
+      id: string | undefined
+      url: string | undefined
+      status: 'pending' | 'processing' | 'completed' | 'error'
     } | null
     error: { message: string; status?: number } | null
   }>({ loading: true, data: null, error: null })
@@ -35,7 +34,6 @@ export default function useGenerativeComponent(props: Props) {
       id,
       endpoint,
       steps,
-      serverAction,
     }
     if (
       hasRunRef.current &&
@@ -44,38 +42,21 @@ export default function useGenerativeComponent(props: Props) {
       hasRunRef.current.variants === currentDeps.variants &&
       hasRunRef.current.id === currentDeps.id &&
       hasRunRef.current.endpoint === currentDeps.endpoint &&
-      hasRunRef.current.steps === currentDeps.steps &&
-      hasRunRef.current.serverAction === currentDeps.serverAction
+      hasRunRef.current.steps === currentDeps.steps
     ) {
       return
     }
 
     hasRunRef.current = currentDeps
+    setState({ loading: true, data: null, error: null })
 
-    const asyncOp = async () => {
-      setState({ loading: true, data: null, error: null })
-      const schemaString = base?.schema
-        ? JSON.stringify(zodToJsonSchema(base?.schema, 'schema'))
-        : undefined
+    const intervalId = setInterval(() => {
+      const asyncOp = async () => {
+        const schemaString = base?.schema
+          ? JSON.stringify(zodToJsonSchema(base?.schema, 'schema'))
+          : undefined
 
-      try {
-        if (serverAction) {
-          const response = await serverAction({
-            prompt,
-            base: {
-              schema: schemaString,
-            },
-            variants,
-            steps,
-          })
-
-          if (isErrorResponse(response)) {
-            console.error('Error from server action: ', response.error.message)
-            setState({ loading: false, data: null, error: response.error })
-          } else {
-            setState({ loading: false, data: response, error: null })
-          }
-        } else {
+        try {
           const response = await fetch(endpoint || '/api/generate', {
             method: 'POST',
             headers: {
@@ -90,25 +71,59 @@ export default function useGenerativeComponent(props: Props) {
           })
           const data = await response.json()
           if (response.ok) {
-            setState({ loading: false, data, error: null })
+            if (data.status === 'completed') {
+              clearInterval(intervalId)
+              setState({ loading: false, data, error: null })
+            } else if (data.status === 'error') {
+              clearInterval(intervalId)
+              setState({
+                loading: true,
+                data,
+                error: { message: 'Error processing prompt.' },
+              })
+            } else if (
+              data.status === 'pending' ||
+              data.status === 'building'
+            ) {
+              setState({ loading: true, data, error: null })
+            }
           } else {
+            console.log('Clearing interval ID')
+            clearInterval(intervalId)
             setState({ loading: false, data: null, error: data })
           }
+        } catch (err) {
+          console.error('Error processing request: ', err)
+          clearInterval(intervalId)
+          setState({
+            loading: false,
+            data: null,
+            error: {
+              message: 'Error processing request.',
+            },
+          })
         }
-      } catch (err) {
-        console.error('Error processing request: ', err)
-        setState({
-          loading: false,
-          data: null,
-          error: {
-            message: 'Error processing request.',
-          },
-        })
+      }
+      asyncOp()
+    }, 3000)
+
+    return () => {
+      if (
+        hasRunRef.current &&
+        hasRunRef.current.prompt === currentDeps.prompt &&
+        hasRunRef.current.base === currentDeps.base &&
+        hasRunRef.current.variants === currentDeps.variants &&
+        hasRunRef.current.id === currentDeps.id &&
+        hasRunRef.current.endpoint === currentDeps.endpoint &&
+        hasRunRef.current.steps === currentDeps.steps
+      ) {
+        return
+      } else {
+        console.log('Clearing interval id.')
+        clearInterval(intervalId)
       }
     }
-
-    asyncOp()
-  }, [serverAction, endpoint, prompt, base, id, variants, steps])
+  }, [endpoint, prompt, base, id, variants, steps])
 
   return {
     loading,

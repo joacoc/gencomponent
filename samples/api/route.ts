@@ -1,3 +1,4 @@
+// Store at: /app/api/generate/route.tsx
 import type { Params } from '@shaper-sdk/next'
 import { NextResponse } from 'next/server'
 const API_URL = process.env.SHAPER_ENDPOINT

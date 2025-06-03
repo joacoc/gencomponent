@@ -1,6 +1,6 @@
 {
   "name": "@shaper-sdk/next",
-  "version": "0.0.1-alpha.0",
+  "version": "0.0.1-alpha.1",
   "description": "Shaper SDK for Next.js",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

@@ -20,7 +20,7 @@ pnpm add @shaper-sdk/next
 Before using the library, ensure you have:
 
 1. A Next.js project (version 13 or higher recommended)
-2. An API endpoint set up to handle generation requests (default: `/api/endpoint`), or just use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/index.ts)
+2. An API endpoint set up to handle generation requests (default: `/api/generate`), or just use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/index.ts)
 3. Required environment variables:
    ```env
    SHAPER_ENDPOINT=shaper_endpoint
@@ -32,6 +32,7 @@ Before using the library, ensure you have:
 Here's a simple example to get you started:
 
 ```tsx
+'use client'
 import { GenerativeComponent } from '@shaper-sdk/next'
 
 function ContactForm() {
@@ -52,7 +53,7 @@ function ContactForm() {
   return (
     <GenerativeComponent
       prompt="Create a contact form"
-      steps={['Make it more elegant', 'Add form validation']}
+      steps={['Make it simpler']}
     />
   )
 }
@@ -69,6 +70,7 @@ function ContactForm() {
   return (
     <GenerativeComponent
       prompt="Create a contact form"
+      steps={['Make it simpler']}
       variants={['Translate to German']}
     />
   )
@@ -87,15 +89,17 @@ function ContactForm() {
   return (
     <GenerativeComponent
       prompt="Create a contact form"
-      schema={z.object({
-        name: z.string().describe('The user name'),
-        email: z.string().email().describe('The user email'),
-        content: z.string().min(10).describe('The user contact content'),
-        onSubmit: z
-          .string()
-          .url()
-          .describe('The url to send the form after submit'),
-      })}
+      base={{
+        schema: z.object({
+          name: z.string().describe('The user name'),
+          email: z.string().email().describe('The user email'),
+          content: z.string().min(10).describe('The user contact content'),
+          onSubmit: z
+            .string()
+            .url()
+            .describe('The url to send the form after submit'),
+        }),
+      }}
     />
   )
 }
@@ -125,15 +129,14 @@ function ContactForm() {
 
 ### Props
 
-| Prop           | Type         | Default                      | Required | Description                                     |
-| -------------- | ------------ | ---------------------------- | -------- | ----------------------------------------------- |
-| `prompt`       | `string`     | -                            | Yes      | The prompt describing the component to generate |
-| `steps`        | `string[]`   | `[]`                         | No       | Array of refinement steps for the component     |
-| `variants`     | `string[]`   | `[]`                         | No       | Array of variant prompts (e.g., translations)   |
-| `initialState` | `any`        | -                            | No       | Initial state for the generated component       |
-| `model`        | `string`     | `"claude-sonnet-4-20250514"` | No       | The AI model to use for generation              |
-| `className`    | `string`     | -                            | No       | CSS classes to apply to the component container |
-| `schema`       | `ZodTypeAny` | -                            | No       | Zod schema for type validation                  |
+| Prop           | Type       | Default                      | Required | Description                                     |
+| -------------- | ---------- | ---------------------------- | -------- | ----------------------------------------------- |
+| `prompt`       | `string`   | -                            | Yes      | The prompt describing the component to generate |
+| `steps`        | `string[]` | `[]`                         | No       | Array of refinement steps for the component     |
+| `variants`     | `string[]` | `[]`                         | No       | Array of variant prompts (e.g., translations)   |
+| `initialState` | `any`      | -                            | No       | Initial state for the generated component       |
+| `model`        | `string`   | `"claude-sonnet-4-20250514"` | No       | The AI model to use for generation              |
+| `className`    | `string`   | -                            | No       | CSS classes to apply to the component container |
 
 ## Troubleshooting
 

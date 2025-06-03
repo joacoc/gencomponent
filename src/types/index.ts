@@ -6,10 +6,7 @@ export interface DeserializedParams {
   variants?: Variants
   base?: DeserializedBase
   extend?: DeserializedExtend
-  theme?: string
-  version?: number
   id?: string
-  model?: string
 }
 
 export type Params = {
@@ -18,10 +15,7 @@ export type Params = {
   variants?: Variants
   base?: Base
   extend?: Extend
-  theme?: string
-  version?: number
   id?: string
-  model?: string
 }
 
 export interface Response {
