@@ -47,65 +47,75 @@ export default function useGenerativeComponent(props: Props) {
       return
     }
 
+    if (!prompt) {
+      return
+    }
+
     hasRunRef.current = currentDeps
     setState({ loading: true, data: null, error: null })
 
-    const intervalId = setInterval(() => {
-      const asyncOp = async () => {
-        const schemaString = base?.schema
-          ? JSON.stringify(zodToJsonSchema(base?.schema, 'schema'))
-          : undefined
+    const asyncOp = async () => {
+      const baseSchemaString = base?.schema
+        ? JSON.stringify(zodToJsonSchema(base?.schema, 'schema'))
+        : undefined
 
-        try {
-          const response = await fetch(endpoint || '/api/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              prompt,
-              schema: schemaString,
-              variants,
-              steps,
-            }),
-          })
-          const data = await response.json()
-          if (response.ok) {
-            if (data.status === 'completed') {
-              clearInterval(intervalId)
-              setState({ loading: false, data, error: null })
-            } else if (data.status === 'error') {
-              clearInterval(intervalId)
-              setState({
-                loading: true,
-                data,
-                error: { message: 'Error processing prompt.' },
-              })
-            } else if (
-              data.status === 'pending' ||
-              data.status === 'building'
-            ) {
-              setState({ loading: true, data, error: null })
-            }
-          } else {
-            console.log('Clearing interval ID')
+      try {
+        const response = await fetch(endpoint || '/api/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt,
+            base: baseSchemaString ? { schema: baseSchemaString } : undefined,
+            variants,
+            steps,
+          }),
+        })
+        const data = await response.json()
+        if (response.ok) {
+          if (data.status === 'completed') {
             clearInterval(intervalId)
-            setState({ loading: false, data: null, error: data })
+            setState({ loading: false, data, error: null })
+          } else if (data.status === 'error') {
+            clearInterval(intervalId)
+            setState({
+              loading: false,
+              data,
+              error: { message: 'Error processing prompt.' },
+            })
+          } else if (data.status === 'pending' || data.status === 'building') {
+            setState({ loading: true, data, error: null })
+          } else {
+            setState({
+              loading: false,
+              data,
+              error: { message: 'Unknown state. ' },
+            })
+            clearInterval(intervalId)
           }
-        } catch (err) {
-          console.error('Error processing request: ', err)
+        } else {
           clearInterval(intervalId)
-          setState({
-            loading: false,
-            data: null,
-            error: {
-              message: 'Error processing request.',
-            },
-          })
+          setState({ loading: false, data: null, error: data })
         }
+      } catch (err) {
+        console.error('Error processing request: ', err)
+        clearInterval(intervalId)
+        setState({
+          loading: false,
+          data: null,
+          error: {
+            message: 'Error processing request.',
+          },
+        })
       }
-      asyncOp()
-    }, 3000)
+    }
+
+    // Then continue running every 3 seconds
+    const intervalId = setInterval(asyncOp, 3000)
+
+    // Run once immediately
+    asyncOp()
 
     return () => {
       if (
@@ -119,7 +129,6 @@ export default function useGenerativeComponent(props: Props) {
       ) {
         return
       } else {
-        console.log('Clearing interval id.')
         clearInterval(intervalId)
       }
     }

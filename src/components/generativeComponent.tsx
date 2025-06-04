@@ -43,11 +43,11 @@ const GenerativeComponent = memo(
      * Callbacks
      */
     const onMessageHandler = useCallback((e: any) => {
-      console.log('Received message from iframe:', e.data)
+      // console.log('Received message from iframe:', e.data)
       const top = window.top
       if (top && top.onmessage) {
         top.onmessage = (e: MessageEvent) => {
-          console.log('Received TOP message:', e.data)
+          // console.log('Received TOP message:', e.data)
         }
       }
       window.onmessage = function (e) {
@@ -55,31 +55,31 @@ const GenerativeComponent = memo(
         // if (e.origin !== "https://cdn.r2") return;
         const { type, status } = e.data
         if (type === 'STATUS' && status === 'INIT') {
-          console.log('Iframe initialized')
+          // console.log('Iframe initialized')
           setStatus('INIT')
         }
         if (type === 'STATUS' && status === 'LOADED') {
-          console.log('Iframe loaded')
+          // console.log('Iframe loaded')
           setStatus('LOADED')
         }
 
         if (type === 'PARAMS_RECEIVED') {
-          console.log('Iframe params received')
+          // console.log('Iframe params received')
         }
       }
-      console.log('Received message from iframe:', e.data)
+      // console.log('Received message from iframe:', e.data)
       const { type, status } = e.data
       if (type === 'STATUS' && status === 'INIT') {
-        console.log('Iframe initialized')
+        // console.log('Iframe initialized')
         setStatus('INIT')
       }
       if (type === 'STATUS' && status === 'LOADED') {
-        console.log('Iframe loaded')
+        // console.log('Iframe loaded')
         setStatus('LOADED')
       }
 
       if (type === 'PARAMS_RECEIVED') {
-        console.log('Iframe params received')
+        // console.log('Iframe params received')
       }
     }, [])
 
@@ -97,36 +97,29 @@ const GenerativeComponent = memo(
     }, [data, error])
 
     useEffect(() => {
-      if (ref.current && ref.current.contentWindow) {
-        ref.current.contentWindow.onmessage = (e) => {
-          console.log('EV: ', e)
-        }
-      }
-    }, [ref.current])
-
-    useEffect(() => {
       const { top } = window
       if (top) {
         top.onmessage = (e) => {
-          console.log('TOP: ', e)
-          ;(ref.current as any)?.sendMessage({
-            type: 'INITIAL_STATE',
-            payload: initialState,
-          })
-          ref.current?.contentWindow?.postMessage(
-            {
+          if (ref.current) {
+            const refc: any = ref.current
+            refc.sendMessage({
               type: 'INITIAL_STATE',
               payload: initialState,
-            },
-            '*',
-          )
+            })
+            refc.contentWindow?.postMessage(
+              {
+                type: 'INITIAL_STATE',
+                payload: initialState,
+              },
+              '*',
+            )
+          }
         }
       }
     }, [])
 
     useEffect(() => {
       if (status === 'LOADED') {
-        console.log('Sending initial state to iframe')
         ref.current?.contentWindow?.postMessage(
           {
             type: 'INITIAL_STATE',
@@ -138,11 +131,10 @@ const GenerativeComponent = memo(
     }, [ref.current?.contentWindow, initialState, status])
 
     if (loading) {
-      console.log('Loading: ', loading)
       return (
         <div
           className={cn(
-            'mx-auto flex h-full max-h-full w-full max-w-sm animate-pulse rounded-md border border-gray-200 bg-gray-200/50',
+            'mx-auto flex h-10 max-h-full w-full max-w-sm animate-pulse rounded-md border border-gray-200 bg-gray-200/50',
             className,
           )}
         />
@@ -166,7 +158,6 @@ const GenerativeComponent = memo(
     return (
       <IframeResizer
         license="GPLv3"
-        log
         forwardRef={ref}
         inPageLinks
         onMessage={onMessageHandler}
@@ -177,7 +168,7 @@ const GenerativeComponent = memo(
         key={id + '_' + 'iframe'}
         allow="fullscreen; camera; microphone; gyroscope; accelerometer; geolocation; clipboard-write; autoplay"
         loading="eager"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups-to-escape-sandbox allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-presentation"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups-to-escape-sandbox allow-pointer-lock allow-popups allow-modals"
         fetchPriority="high"
       />
     )
