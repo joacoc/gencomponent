@@ -20,7 +20,7 @@ pnpm add @shaper-sdk/next
 Before using the library, ensure you have:
 
 1. A Next.js project (version 13 or higher recommended)
-2. An API endpoint set up to handle generation requests (default: `/api/generate`), or just use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/index.ts)
+2. An API endpoint set up to handle generation requests (default: `/api/generate`), or just use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/route.ts)
 3. Required environment variables:
    ```env
    SHAPER_ENDPOINT=shaper_endpoint
