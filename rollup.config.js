@@ -1,10 +1,10 @@
-const resolve = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-const typescript = require('@rollup/plugin-typescript');
-const peerDepsExternal = require('rollup-plugin-peer-deps-external');
-const postcss = require('rollup-plugin-postcss'); // Import postcss plugin
-const {dts} = require('rollup-plugin-dts');
-const tailwind = require('@tailwindcss/postcss');
+const resolve = require('@rollup/plugin-node-resolve')
+const commonjs = require('@rollup/plugin-commonjs')
+const typescript = require('@rollup/plugin-typescript')
+const postcss = require('rollup-plugin-postcss')
+const tailwind = require('@tailwindcss/postcss')
+const autoprefixer = require('autoprefixer')
+const dts = require('rollup-plugin-dts')
 
 module.exports = [
   {
@@ -14,23 +14,20 @@ module.exports = [
         file: 'dist/index.js',
         format: 'cjs',
         sourcemap: true,
-      },
-      {
-        file: 'dist/index.esm.js',
-        format: 'esm',
-        sourcemap: true,
+        // Simple/hacky way to do two things:
+        // 1. Make all the components client-side.
+        //    The ideal for the future would be to have a separate entry/build for server-side components and client-side components.
+        // 2. Generate type declarations for the components.
+        banner: "'use client'" + '\n' + "require('./index.css');" + '\n',
       },
     ],
     plugins: [
-      peerDepsExternal(),
+      postcss({
+        plugins: [tailwind],
+        extract: true,
+      }),
       resolve({
         browser: true,
-      }),
-      postcss({ 
-        minimize: true, 
-        plugins: [
-          tailwind,
-        ]
       }),
       commonjs(),
       typescript({
@@ -39,20 +36,4 @@ module.exports = [
     ],
     external: ['react', 'react-dom', 'next'],
   },
-  {
-    input: 'src/index.ts',
-    output: {
-      file: 'dist/index.d.ts',
-      format: 'esm',
-    },
-    plugins: [
-      peerDepsExternal(),
-      dts(),
-      postcss({ 
-        minimize: true, 
-        plugins: [
-          tailwind,
-        ]
-      })],
-  },
-];
+]

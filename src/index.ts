@@ -1,8 +1,13 @@
-import GenerativeComponent from './components/generativeComponent'
+import AdaptiveComponent from './components/aggregators/adaptiveComponent'
+import AdminPanel from './components/aggregators/adminPanel'
+import Form from './components/aggregators/form'
+import Visualization from './components/aggregators/visualization'
+import IFrame from './components/primitives/_iFrame'
+import GenerativeComponent from './components/primitives/generativeComponent'
 import useGenerativeComponent from './hooks/useGenerativeComponent'
 import './index.css'
 import { GenerativeProvider, useGenerativeContext } from './provider'
-export type { Props as BlockProps } from './components/generativeComponent'
+export type { Props as BlockProps } from './components/primitives/generativeComponent'
 export type {
   Base,
   DeserializedBase,
@@ -19,8 +24,13 @@ export type {
 } from './types'
 
 export {
+  AdaptiveComponent,
+  AdminPanel,
+  Form,
   GenerativeComponent,
   GenerativeProvider,
+  IFrame,
   useGenerativeComponent,
   useGenerativeContext,
+  Visualization,
 }

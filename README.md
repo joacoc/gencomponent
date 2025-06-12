@@ -32,7 +32,6 @@ Before using the library, ensure you have:
 Here's a simple example to get you started:
 
 ```tsx
-'use client'
 import { GenerativeComponent } from '@shaper-sdk/next'
 
 function ContactForm() {
@@ -71,7 +70,7 @@ function ContactForm() {
     <GenerativeComponent
       prompt="Create a contact form"
       steps={['Make it simpler']}
-      variants={['Translate to German']}
+      variants={['Translate to Japanese']}
     />
   )
 }

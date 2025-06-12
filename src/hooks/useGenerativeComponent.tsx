@@ -1,8 +1,8 @@
-'use client'
+import { areParamsEqual } from '@/lib/utils'
 import { useGenerativeContext } from '@/provider'
 import { useEffect, useRef, useState } from 'react'
 import { zodToJsonSchema } from 'zod-to-json-schema'
-import { Params } from '../types'
+import { Data, Params } from '../types'
 
 interface Props extends Params {
   id?: string
@@ -10,48 +10,28 @@ interface Props extends Params {
 }
 
 export default function useGenerativeComponent(props: Props) {
-  const { prompt, base, variants, steps, id } = props
+  const { prompt, base, variants, steps } = props
   const context = useGenerativeContext()
   const endpoint = props.endpoint || context?.endpoint
 
   const [{ loading, data, error }, setState] = useState<{
     loading: boolean
-    data: {
-      id: string | undefined
-      url: string | undefined
-      status: 'pending' | 'processing' | 'completed' | 'error'
-    } | null
+    data: Data | null
     error: { message: string; status?: number } | null
   }>({ loading: true, data: null, error: null })
 
   const hasRunRef = useRef<Props | null>(null)
 
   useEffect(() => {
-    const currentDeps = {
-      prompt,
-      base,
-      variants,
-      id,
-      endpoint,
-      steps,
-    }
-    if (
-      hasRunRef.current &&
-      hasRunRef.current.prompt === currentDeps.prompt &&
-      hasRunRef.current.base === currentDeps.base &&
-      hasRunRef.current.variants === currentDeps.variants &&
-      hasRunRef.current.id === currentDeps.id &&
-      hasRunRef.current.endpoint === currentDeps.endpoint &&
-      hasRunRef.current.steps === currentDeps.steps
-    ) {
-      return
-    }
-
     if (!prompt) {
       return
     }
 
-    hasRunRef.current = currentDeps
+    if (hasRunRef.current && areParamsEqual(hasRunRef.current, props)) {
+      return
+    }
+
+    hasRunRef.current = props
     setState({ loading: true, data: null, error: null })
 
     const asyncOp = async () => {
@@ -72,8 +52,8 @@ export default function useGenerativeComponent(props: Props) {
             steps,
           }),
         })
-        const data = await response.json()
         if (response.ok) {
+          const data = await response.json()
           if (data.status === 'completed') {
             clearInterval(intervalId)
             setState({ loading: false, data, error: null })
@@ -96,7 +76,30 @@ export default function useGenerativeComponent(props: Props) {
           }
         } else {
           clearInterval(intervalId)
-          setState({ loading: false, data: null, error: data })
+
+          const contentType = response.headers.get('content-type')
+          let errorData
+          /**
+           * We need to differentiate between JSON and non-JSON responses.
+           * Errors from the server are returned as JSON.
+           * Those comming from network errs are as text
+           */
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              errorData = await response.json()
+            } catch (parseError) {
+              errorData = { message: await response.text() }
+            }
+          } else {
+            // Not JSON, read as text
+            const errorText = await response.text()
+            errorData = {
+              message:
+                errorText || `HTTP ${response.status}: ${response.statusText}`,
+            }
+          }
+
+          setState({ loading: false, data: null, error: errorData })
         }
       } catch (err) {
         console.error('Error processing request: ', err)
@@ -118,21 +121,9 @@ export default function useGenerativeComponent(props: Props) {
     asyncOp()
 
     return () => {
-      if (
-        hasRunRef.current &&
-        hasRunRef.current.prompt === currentDeps.prompt &&
-        hasRunRef.current.base === currentDeps.base &&
-        hasRunRef.current.variants === currentDeps.variants &&
-        hasRunRef.current.id === currentDeps.id &&
-        hasRunRef.current.endpoint === currentDeps.endpoint &&
-        hasRunRef.current.steps === currentDeps.steps
-      ) {
-        return
-      } else {
-        clearInterval(intervalId)
-      }
+      clearInterval(intervalId)
     }
-  }, [endpoint, prompt, base, id, variants, steps])
+  }, [hasRunRef.current, props])
 
   return {
     loading,
