@@ -116,7 +116,7 @@ function ContactForm() {
   return (
     <GenerativeComponent
       prompt="Create a contact form"
-      initialState={{
+      initState={{
         name: 'John Smith',
         email: 'John.smith@example.com',
       }}
