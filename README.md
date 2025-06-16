@@ -43,7 +43,7 @@ function ContactForm() {
 
 ### Incremental Refinement
 
-You can refine your component through multiple steps:
+You can refine your component through multiple revisions:
 
 ```tsx
 import { GenerativeComponent } from '@shaper-sdk/next'
@@ -52,7 +52,7 @@ function ContactForm() {
   return (
     <GenerativeComponent
       prompt="Create a contact form"
-      steps={['Make it simpler']}
+      revisions={['Make it simpler']}
     />
   )
 }
@@ -69,7 +69,7 @@ function ContactForm() {
   return (
     <GenerativeComponent
       prompt="Create a contact form"
-      steps={['Make it simpler']}
+      revisions={['Make it simpler']}
       variants={['Translate to Japanese']}
     />
   )
@@ -131,7 +131,7 @@ function ContactForm() {
 | Prop           | Type       | Default                      | Required | Description                                     |
 | -------------- | ---------- | ---------------------------- | -------- | ----------------------------------------------- |
 | `prompt`       | `string`   | -                            | Yes      | The prompt describing the component to generate |
-| `steps`        | `string[]` | `[]`                         | No       | Array of refinement steps for the component     |
+| `revisions`    | `string[]` | `[]`                         | No       | Array of refinement revisions for the component |
 | `variants`     | `string[]` | `[]`                         | No       | Array of variant prompts (e.g., translations)   |
 | `initialState` | `any`      | -                            | No       | Initial state for the generated component       |
 | `model`        | `string`   | `"claude-sonnet-4-20250514"` | No       | The AI model to use for generation              |

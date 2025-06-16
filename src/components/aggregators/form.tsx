@@ -17,7 +17,7 @@ const Form = (props: Props) => {
   return (
     <GenerativeComponent
       prompt={prompt}
-      steps={props.transformations}
+      revisions={props.transformations}
       base={{
         schema: props.schema
           ? z.object({

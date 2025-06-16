@@ -26,7 +26,7 @@ const GenerativeComponent = memo(
     innerClassName,
     base,
     extend,
-    steps,
+    revisions,
     onLoad,
     onError,
     onMessage,
@@ -38,11 +38,11 @@ const GenerativeComponent = memo(
       base,
       extend,
       variants,
-      steps,
+      revisions,
     })
     const [display, setDisplay] = useState(false)
     const displayLoading =
-      !display || loading || error || (data && data.status !== 'completed')
+      !display || loading || error || (data && data.status !== 'ready')
 
     /**
      * Effects
@@ -57,12 +57,14 @@ const GenerativeComponent = memo(
       }
     }, [data, error])
 
+    console.log('Error: ', error)
+
     return (
       <>
         {displayLoading && (
           <div
             className={cn(
-              'flex h-full w-full rounded-md border border-gray-200 bg-gray-100/50',
+              'flex rounded-md border border-gray-200 bg-gray-100/50',
               className,
             )}
           >
@@ -77,7 +79,7 @@ const GenerativeComponent = memo(
             }
           </div>
         )}
-        {data && data.status === 'completed' && !loading && !error && (
+        {data && data.status === 'ready' && !loading && !error && (
           <IFrame
             data={data}
             className={cn(className, display ? 'visible' : 'invisible')}

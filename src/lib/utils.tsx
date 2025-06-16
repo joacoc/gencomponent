@@ -38,6 +38,6 @@ export function areParamsEqual(prevParams: Params, nextParams: Params) {
     isSchemaEqual(prevParams.base?.schema, nextParams.base?.schema) &&
     prevParams.extend === nextParams.extend &&
     fastDeepEqual(prevParams.variants, nextParams.variants) &&
-    fastDeepEqual(prevParams.steps, nextParams.steps)
+    fastDeepEqual(prevParams.revisions, nextParams.revisions)
   )
 }

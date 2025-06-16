@@ -8,11 +8,11 @@ interface Props {
   data: unknown
 }
 
-const GenerativeChart = (props: Props) => {
+const Chart = (props: Props) => {
   return (
     <GenerativeComponent
       prompt={'Generate a chart for the defined schema.'}
-      steps={props.transformations}
+      revisions={props.transformations}
       base={{
         schema: z.object({
           data: props.schema,
@@ -25,4 +25,4 @@ const GenerativeChart = (props: Props) => {
   )
 }
 
-export default GenerativeChart
+export default Chart

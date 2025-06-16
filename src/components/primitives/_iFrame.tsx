@@ -1,4 +1,5 @@
 import { useDarkMode } from '@/hooks/useDarkMode'
+import { cn } from '@/lib/utils'
 import IframeResizer from '@iframe-resizer/react'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Data, FunctionProps } from '../../types'
@@ -12,7 +13,7 @@ type Props = {
   initState?: any
   log?: boolean | 'expanded' | 'collapsed' | undefined
   onMessage?: (message: { type: string; data: unknown }) => void
-  onInit?: () => void;
+  onInit?: () => void
   autoResize?: 'vertical' | 'horizontal' | 'both' | 'none'
 } & FunctionProps
 
@@ -71,9 +72,9 @@ const IFrame = ({
         }),
       )
       isInitialized.current = true
-      
+
       if (onInit) {
-          onInit();
+        onInit()
       }
     }
   }, [onInit, isReady, initState, innerClassName, darkMode, ref.current])
@@ -169,7 +170,7 @@ const IFrame = ({
       onMessage={onMessageHandler}
       onReady={onReadyHandler}
       src={data?.url + (hasInitParams ? '?await_init=true' : '')}
-      className={className}
+      className={cn('max-w-full', className)}
       checkOrigin={[ORIGIN]}
       bodyMargin={0}
       direction={autoResize}

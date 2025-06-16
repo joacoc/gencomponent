@@ -1,7 +1,7 @@
 import AdaptiveComponent from './components/aggregators/adaptiveComponent'
 import AdminPanel from './components/aggregators/adminPanel'
 import Form from './components/aggregators/form'
-import Visualization from './components/aggregators/visualization'
+import Chart from './components/aggregators/visualization'
 import IFrame from './components/primitives/_iFrame'
 import GenerativeComponent from './components/primitives/generativeComponent'
 import useGenerativeComponent from './hooks/useGenerativeComponent'
@@ -26,11 +26,11 @@ export type {
 export {
   AdaptiveComponent,
   AdminPanel,
+  Chart,
   Form,
   GenerativeComponent,
   GenerativeProvider,
   IFrame,
   useGenerativeComponent,
   useGenerativeContext,
-  Visualization,
 }

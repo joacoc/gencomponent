@@ -13,7 +13,7 @@ const AdaptiveComponent = (props: Props) => {
   return (
     <GenerativeComponent
       prompt={props.description}
-      steps={props.transformations}
+      revisions={props.transformations}
       base={{
         schema: props.schema,
       }}

@@ -1,6 +1,6 @@
 import { ZodTypeAny } from 'zod'
 
-export type Status = 'pending' | 'processing' | 'completed' | 'error'
+export type Status = 'pending' | 'processing' | 'ready' | 'error'
 
 export interface Error {
   message: string
@@ -20,7 +20,7 @@ export type FunctionProps = Record<
 
 export interface DeserializedParams {
   prompt: string
-  steps?: Array<string>
+  revisions?: Array<string>
   variants?: Variants
   base?: DeserializedBase
   extend?: DeserializedExtend
@@ -29,7 +29,7 @@ export interface DeserializedParams {
 
 export type Params = {
   prompt: string
-  steps?: Array<string>
+  revisions?: Array<string>
   variants?: Variants
   base?: Base
   extend?: Extend
@@ -58,7 +58,7 @@ export type ServerAction = (
   params: DeserializedParams,
 ) => Promise<Response | ErrorResponse>
 
-export type Variants = Array<Variant>
+export type Variants = Array<Variant> | Variant
 export type Variant = string
 export type Base = {
   schema?: ZodTypeAny

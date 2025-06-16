@@ -17,7 +17,7 @@ const AdaptiveAdminPanelComponent = (props: Props) => {
   return (
     <GenerativeComponent
       prompt={prompt}
-      steps={props.transformations}
+      revisions={props.transformations}
       variants={props.locale ? [props.locale] : undefined}
       base={{
         schema: z.object({

@@ -1,7 +1,7 @@
 {
   "name": "@shaper-sdk/next",
-  "version": "0.0.1-alpha.4",
-  "description": "Shaper SDK for React",
+  "version": "0.0.1-alpha.6",
+  "description": "Shaper SDK for Next",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rm -r dist && rollup -c",
     "dev": "rollup -c -w",
     "prepublishOnly": "npm run build",
     "test": "jest",

@@ -2,6 +2,7 @@
 import type { Params } from '@shaper-sdk/next'
 import { NextResponse } from 'next/server'
 const API_URL = process.env.SHAPER_ENDPOINT
+const API_KEY = process.env.SHAPER_API_KEY
 
 /**
  * Server action to generate content.
@@ -36,6 +37,7 @@ export async function POST(req: Request): Promise<Response> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
       },
       body: JSON.stringify(params),
     })
