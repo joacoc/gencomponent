@@ -14,13 +14,19 @@ export interface Data {
 }
 
 export type FunctionProps = Record<
-  `on${string}` | `handle${string}`,
+  `on${string}` | `handle${string}` | `get${string}`,
   undefined | ((...args: any[]) => Promise<any | void> | void)
 >
 
+export interface Styling {
+  bodyClassName?: string
+  rootClassName?: string
+  containerClassName?: String
+}
+
 export interface DeserializedParams {
   prompt: string
-  revisions?: Array<string>
+  steps?: Array<string>
   variants?: Variants
   base?: DeserializedBase
   extend?: DeserializedExtend
@@ -29,7 +35,7 @@ export interface DeserializedParams {
 
 export type Params = {
   prompt: string
-  revisions?: Array<string>
+  steps?: Array<string>
   variants?: Variants
   base?: Base
   extend?: Extend

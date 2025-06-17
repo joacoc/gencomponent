@@ -1,7 +1,6 @@
 // Store at: /app/api/generate/route.tsx
 import type { Params } from '@shaper-sdk/next'
 import { NextResponse } from 'next/server'
-const API_URL = process.env.SHAPER_ENDPOINT
 const API_KEY = process.env.SHAPER_API_KEY
 
 /**
@@ -23,22 +22,17 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   try {
-    if (!API_URL) {
-      return NextResponse.json(
-        {
-          error: {
-            message: 'SHAPER_ENDPOINT is not defined',
-          },
-        },
-        { status: 500 },
-      )
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
     }
-    const response = await fetch(API_URL, {
+
+    if (API_KEY) {
+      headers['x-api-key'] = API_KEY
+    }
+
+    const response = await fetch('https://api.shaper.build/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-      },
+      headers,
       body: JSON.stringify(params),
     })
 

@@ -1,12 +1,15 @@
 import { areParamsEqual } from '@/lib/utils'
 import { useGenerativeContext } from '@/provider'
 import { useEffect, useRef, useState } from 'react'
+import { ZodTypeAny } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import { Data, Params } from '../types'
 
-interface Props extends Params {
+interface Props extends Omit<Params, 'base' | 'extends'> {
   id?: string
   endpoint?: string
+  schema?: ZodTypeAny
+  extendSchema?: ZodTypeAny
 }
 
 interface State {
@@ -15,8 +18,7 @@ interface State {
   error: { message: string; status?: number } | null
 }
 
-const SHAPER_ENDPOINT =
-  'https://02aacx9iw0.execute-api.us-east-2.amazonaws.com/generate'
+const SHAPER_ENDPOINT = 'https://api.shaper.build/generate'
 
 const createOrGetId = async ({
   endpoint,
@@ -108,7 +110,7 @@ export default function useGenerativeComponent(props: Props) {
   const hasRunRef = useRef<Props | null>(null)
 
   useEffect(() => {
-    const { prompt, base, extend, variants, revisions } = props
+    const { prompt, variants, steps, schema, extendSchema } = props
 
     if (!prompt) {
       setState({
@@ -123,23 +125,23 @@ export default function useGenerativeComponent(props: Props) {
     }
 
     // Prepare request
-    const baseSchemaString = base?.schema
-      ? JSON.stringify(zodToJsonSchema(base?.schema, 'schema'))
+    const baseSchemaString = schema
+      ? JSON.stringify(zodToJsonSchema(schema, 'schema'))
       : undefined
-    const extendSchemaString = extend?.schema
-      ? JSON.stringify(zodToJsonSchema(extend?.schema, 'schema'))
+    const extendSchemaString = extendSchema
+      ? JSON.stringify(zodToJsonSchema(extendSchema, 'schema'))
       : undefined
     const body = JSON.stringify({
       prompt,
       base: baseSchemaString ? { schema: baseSchemaString } : undefined,
       extend: extendSchemaString ? { schema: extendSchemaString } : undefined,
       variants,
-      revisions,
+      steps,
     })
 
     hasRunRef.current = props
     setState({ loading: true, data: null, error: null })
-    let intervalId: number
+    let intervalId: NodeJS.Timeout
 
     const asyncOp = async () => {
       let state = await createOrGetId({ endpoint, body })

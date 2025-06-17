@@ -1,16 +1,20 @@
-import { areParamsEqual, cn } from '@/lib/utils'
+import { areParamsEqual, cn, extractFns } from '@/lib/utils'
 import fastDeepEqual from 'fast-deep-equal'
 import { memo, useEffect, useState } from 'react'
+import { ZodTypeAny } from 'zod'
 import useGenerativeComponent from '../../hooks/useGenerativeComponent'
 import type { FunctionProps, Params } from '../../types'
 import ExclamationTriangle from '../icons/exclamationTriangle'
 import IFrame from './_iFrame'
 
-export interface Props extends Params {
+export interface Props extends Omit<Params, 'base' | 'extends'> {
   initState?: any
   className?: string
-  innerClassName?: string
+  // styling?: Styling
   autoResize?: 'vertical' | 'horizontal' | 'both' | 'none' | undefined
+  schema?: ZodTypeAny
+  extendSchema?: ZodTypeAny
+  log?: boolean | 'expanded' | 'collapsed' | undefined
   onLoad?: (data: { id?: string; url?: string; status?: string }) => void
   onError?: (error: { message: string; status?: number }) => void
   onMessage?: (message: { type: string; data: unknown }) => void
@@ -23,22 +27,23 @@ const GenerativeComponent = memo(
     variants,
     initState,
     className,
-    innerClassName,
-    base,
-    extend,
-    revisions,
+    // styling,
+    schema,
+    extendSchema,
+    steps,
     onLoad,
     onError,
     onMessage,
     autoResize,
+    log,
     ...fns
   }: Props & FunctionProps) => {
     const { data, loading, error } = useGenerativeComponent({
       prompt,
-      base,
-      extend,
+      schema,
+      extendSchema,
       variants,
-      revisions,
+      steps,
     })
     const [display, setDisplay] = useState(false)
     const displayLoading =
@@ -56,8 +61,6 @@ const GenerativeComponent = memo(
         onError(error)
       }
     }, [data, error])
-
-    console.log('Error: ', error)
 
     return (
       <>
@@ -85,9 +88,10 @@ const GenerativeComponent = memo(
             className={cn(className, display ? 'visible' : 'invisible')}
             initState={initState}
             onMessage={onMessage}
-            innerClassName={innerClassName}
+            // styling={styling}
             autoResize={autoResize}
             onInit={() => setDisplay(true)}
+            log={false || log}
             {...fns}
           />
         )}
@@ -95,11 +99,15 @@ const GenerativeComponent = memo(
     )
   },
   (prevProps, nextProps) => {
+    const fnsEq = extractFns(prevProps) != extractFns(nextProps)
+
     return (
       areParamsEqual(prevProps, nextProps) &&
       prevProps.className === nextProps.className &&
-      prevProps.innerClassName === nextProps.innerClassName &&
-      fastDeepEqual(prevProps.initState, nextProps.initState)
+      prevProps.log === nextProps.log &&
+      // fastDeepEqual(prevProps.styling, nextProps.styling) &&
+      fastDeepEqual(prevProps.initState, nextProps.initState) &&
+      fnsEq
     )
   },
 )

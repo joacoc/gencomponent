@@ -1,4 +1,5 @@
-import { Params } from '@/types'
+import { Props } from '@/components/primitives/generativeComponent'
+import { FunctionProps, Params } from '@/types'
 import { clsx, type ClassValue } from 'clsx'
 import fastDeepEqual from 'fast-deep-equal'
 import { twMerge } from 'tailwind-merge'
@@ -38,6 +39,25 @@ export function areParamsEqual(prevParams: Params, nextParams: Params) {
     isSchemaEqual(prevParams.base?.schema, nextParams.base?.schema) &&
     prevParams.extend === nextParams.extend &&
     fastDeepEqual(prevParams.variants, nextParams.variants) &&
-    fastDeepEqual(prevParams.revisions, nextParams.revisions)
+    fastDeepEqual(prevParams.steps, nextParams.steps)
   )
+}
+
+export function extractFns({
+  prompt,
+  autoResize,
+  className,
+  extend,
+  extendSchema,
+  id,
+  initState,
+  onError,
+  onLoad,
+  onMessage,
+  schema,
+  steps,
+  variants,
+  ...fns
+}: Props & FunctionProps) {
+  return fns
 }

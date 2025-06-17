@@ -2,15 +2,15 @@ import { useDarkMode } from '@/hooks/useDarkMode'
 import { cn } from '@/lib/utils'
 import IframeResizer from '@iframe-resizer/react'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import { Data, FunctionProps } from '../../types'
+import { Data, FunctionProps, Styling } from '../../types'
 
 const ORIGIN = 'https://pub-d6adf32ab3b94607ba3b3402d7fd4d20.r2.dev'
 
 type Props = {
   data: Data | null
   className?: string
-  innerClassName?: string
   initState?: any
+  styling?: Styling
   log?: boolean | 'expanded' | 'collapsed' | undefined
   onMessage?: (message: { type: string; data: unknown }) => void
   onInit?: () => void
@@ -22,11 +22,11 @@ const IFrame = ({
   initState,
   className,
   log,
-  innerClassName,
+  styling,
   onMessage,
   onInit,
   autoResize = 'both',
-  ...props
+  ...propsFns
 }: Props) => {
   /**
    * Hooks
@@ -54,19 +54,24 @@ const IFrame = ({
   const isInitialized = useRef<boolean | null>(null)
 
   // Simple way to check if there are params
-  const hasInitParams = !!(data || className || darkMode)
+  const hasInitParams = !!(data || styling || darkMode)
+
+  // We use a ref. for functions
+  // Replacing onMessageHandler has no effect on iFrame,
+  // and continues using old props/fns. This way we can avoid this issue.
+  const fnsRef = useRef<FunctionProps | null>(propsFns)
 
   /**
    * Effects
    */
   useEffect(() => {
-    if (isReady && ref.current) {
+    if (isReady && ref.current && !isInitialized.current) {
       ref.current.iFrameResizer.sendMessage(
         JSON.stringify({
           type: 'INIT',
           data: {
             state: initState,
-            className,
+            styling,
             darkMode,
           },
         }),
@@ -77,27 +82,48 @@ const IFrame = ({
         onInit()
       }
     }
-  }, [onInit, isReady, initState, innerClassName, darkMode, ref.current])
+  }, [onInit, isReady, initState, styling, darkMode, ref.current])
 
+  useEffect(() => {
+    fnsRef.current = propsFns
+  }, [propsFns])
+
+  // We have a separate useEffect to handle dynamic className changes.
   useEffect(() => {
     if (ref.current && isInitialized.current) {
       ref.current.iFrameResizer.sendMessage(
         JSON.stringify({
           type: 'SET_THEME',
           data: {
-            className: innerClassName,
+            styling,
             dark: darkMode,
           },
         }),
       )
     }
-  }, [innerClassName, darkMode, ref.current])
+  }, [styling, darkMode, ref.current])
+
+  useEffect(() => {
+    const functionNames = Object.keys(propsFns) || []
+    if (ref.current && isInitialized.current) {
+      ref.current.iFrameResizer.sendMessage(
+        JSON.stringify({
+          type: 'REMOTE_CALL_REGISTER',
+          data: {
+            functionNames,
+          },
+        }),
+      )
+    }
+  }, [propsFns, ref.current])
 
   /**
    * Callbacks
    */
   const onMessageHandler = useCallback(
     async ({ message }: { message?: string }) => {
+      const fns = fnsRef.current
+
       if (message) {
         try {
           const { type, data } = JSON.parse(message)
@@ -106,9 +132,9 @@ const IFrame = ({
           } else if (type === 'REMOTE_CALL') {
             const { functionName, params, id } = data
 
-            if (typeof props[functionName] === 'function') {
+            if (fns && typeof fns[functionName] === 'function') {
               try {
-                const response = await props[functionName](...params)
+                const response = await fns[functionName](...params)
                 if (ref.current) {
                   ref.current.iFrameResizer.sendMessage(
                     JSON.stringify({
@@ -143,6 +169,8 @@ const IFrame = ({
                   )
                 }
               }
+            } else {
+              console.warn('[Parent]', 'Remote call on undefined function.')
             }
           } else if (onMessage) {
             onMessage({ type, data })
@@ -163,13 +191,26 @@ const IFrame = ({
     [],
   )
 
+  const url = data?.url || ''
+  const params = new URLSearchParams()
+
+  if (hasInitParams) {
+    params.append('await_init', 'true')
+  }
+
+  if (log) {
+    params.append('log', 'true')
+  }
+
+  const finalURL = url + (params.toString() ? `?${params.toString()}` : '')
+
   return (
     <IframeResizer
       license="GPLv3"
       inPageLinks
       onMessage={onMessageHandler}
       onReady={onReadyHandler}
-      src={data?.url + (hasInitParams ? '?await_init=true' : '')}
+      src={finalURL}
       className={cn('max-w-full', className)}
       checkOrigin={[ORIGIN]}
       bodyMargin={0}

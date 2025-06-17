@@ -1,6 +1,6 @@
 {
   "name": "@shaper-sdk/next",
-  "version": "0.0.1-alpha.6",
+  "version": "0.0.1-alpha.7",
   "description": "Shaper SDK for Next",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -9,7 +9,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -r dist && rollup -c",
+    "build": "rollup -c",
+    "clean": "rm -r dist",
     "dev": "rollup -c -w",
     "prepublishOnly": "npm run build",
     "test": "jest",
@@ -49,6 +50,7 @@
     "@rollup/plugin-node-resolve": "^15.0.0",
     "@rollup/plugin-typescript": "^11.0.0",
     "@tailwindcss/postcss": "^4.1.8",
+    "@types/node": "^22.13.9",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
