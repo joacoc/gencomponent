@@ -215,9 +215,6 @@ function ContactForm() {
 | `initState`    | `any`        | -       | No       | Initial state for the generated code          |
 | `schema`       | `ZodTypeAny` | -       | No       | Base schema to use for type safety           |
 | `extendSchema` | `ZodTypeAny` | -       | No       | Schema to extend the base schema             |
-| `onClick`      | `function`   | -       | No       | Click event handler                           |
-| `onSubmit`     | `function`   | -       | No       | Form submission handler                       |
-| `onChange`     | `function`   | -       | No       | Change event handler                          |
 
 ## Examples
 
