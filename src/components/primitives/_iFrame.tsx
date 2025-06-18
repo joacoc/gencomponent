@@ -4,7 +4,7 @@ import IframeResizer from '@iframe-resizer/react'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Data, FunctionProps, Styling } from '../../types'
 
-const ORIGIN = 'https://pub-d6adf32ab3b94607ba3b3402d7fd4d20.r2.dev'
+const ORIGIN = 'https://gen.susercontent.net'
 
 type Props = {
   data: Data | null

@@ -1,6 +1,8 @@
 # Shaper SDK for Next.js
 
-Shaper builds infinite components that adapt on the fly. Translation, structure, behavior, you name it. It reshapes in real time.
+Shaper helps you build components that adapt on the fly. Translation, structure, behavior, you name it. The component reshapes itself when props change.
+
+It's ideal for cases where the interface isn't fully known ahead of time, like admin panels, localized UIs, or data-driven charts. In these scenarios, manually scaffolding every variation is either time-consuming or outright impossible.
 
 ## Table of Contents
 
@@ -29,8 +31,8 @@ pnpm add @shaper-sdk/next
 
 Before using the library, ensure you have:
 
-1. An API endpoint set up to handle generation requests (default: `/api/generate`), or use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/route.ts)
-2. Required environment variables:
+1. An API endpoint set up to handle generation requests (default: `/api/generate`), and use [the sample provided here](https://github.com/joacoc/shaper-sdk/blob/main/samples/api/route.ts)
+2. Required environment variables, which you can find at [https://console.shaper.build/settings](https://console.shaper.build/settings):
    ```env
    SHAPER_API_KEY=your_api_key_here
    ```
@@ -81,7 +83,7 @@ function ContactForm() {
       steps={[
         'Add form validation',
         'Make it responsive for mobile devices',
-        'Add loading states for form submission'
+        'Add loading states for form submission',
       ]}
     />
   )
@@ -100,10 +102,7 @@ function ContactForm() {
     <GenerativeComponent
       prompt="Create a contact form"
       steps={['Make it simpler']}
-      variants={[
-        'Translate to Japanese',
-        'Use a dark theme'
-      ]}
+      variants={['Translate to Japanese', 'Use a dark theme']}
     />
   )
 }
@@ -111,7 +110,7 @@ function ContactForm() {
 
 ### Type Safety with Zod
 
-Define your component's data structure using Zod schemas for better type safety and validation:
+Use Zod schemas for better type safety and validation:
 
 ```tsx
 import { GenerativeComponent } from '@shaper-sdk/next'
@@ -125,10 +124,6 @@ function ContactForm() {
         name: z.string().describe('The user name'),
         email: z.string().email().describe('The user email'),
         content: z.string().min(10).describe('The user contact content'),
-        onSubmit: z
-          .string()
-          .url()
-          .describe('The url to send the form after submit'),
       })}
     />
   )
@@ -149,7 +144,7 @@ function ContactForm() {
       initState={{
         name: 'John Smith',
         email: 'john.smith@example.com',
-        content: 'Hello, I would like to inquire about...'
+        content: 'Hello, I would like to inquire about...',
       }}
     />
   )
@@ -213,11 +208,8 @@ function ContactForm() {
 | `steps`        | `string[]`   | `[]`    | No       | Array of steps for incremental improvements   |
 | `variants`     | `string[]`   | `[]`    | No       | Array of variant prompts (e.g., translations) |
 | `initState`    | `any`        | -       | No       | Initial state for the generated code          |
-| `schema`       | `ZodTypeAny` | -       | No       | Base schema to use for type safety           |
-| `extendSchema` | `ZodTypeAny` | -       | No       | Schema to extend the base schema             |
-| `onClick`      | `function`   | -       | No       | Click event handler                           |
-| `onSubmit`     | `function`   | -       | No       | Form submission handler                       |
-| `onChange`     | `function`   | -       | No       | Change event handler                          |
+| `schema`       | `ZodTypeAny` | -       | No       | Base schema to use for type safety            |
+| `extendSchema` | `ZodTypeAny` | -       | No       | Schema to extend the base schema              |
 
 ## Examples
 
@@ -264,13 +256,9 @@ function DashboardWidget() {
       steps={[
         'Add a chart visualization',
         'Include refresh functionality',
-        'Make it collapsible'
+        'Make it collapsible',
       ]}
-      variants={[
-        'Use a dark theme',
-        'Add animations',
-        'Make it responsive'
-      ]}
+      variants={['Use a dark theme', 'Add animations', 'Make it responsive']}
     />
   )
 }
@@ -285,10 +273,11 @@ function MultiLanguageForm() {
   return (
     <GenerativeComponent
       prompt="Create a user registration form"
-      steps={['Add password confirmation field', 'Include terms and conditions checkbox']}
-      variants={[
-        'Translate all text to German'
+      steps={[
+        'Add password confirmation field',
+        'Include terms and conditions checkbox',
       ]}
+      variants={['Translate all text to German']}
     />
   )
 }
@@ -299,11 +288,13 @@ function MultiLanguageForm() {
 ### Common Issues
 
 1. **Code not generating**
+
    - Check your API endpoint is correctly configured
    - Verify your API key is set in environment variables
    - Avoid using external or incompatible libraries in prompts
 
 2. **Type errors with schema**
+
    - Make sure your Zod schema matches the expected code structure
    - Verify all required fields are included in the schema
    - Check that field types match your requirements
